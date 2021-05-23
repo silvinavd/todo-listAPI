@@ -25,3 +25,15 @@ export const getUsers = async (req: Request, res: Response): Promise<Response> =
 		const users = await getRepository(Users).find();
 		return res.json(users);
 }
+export const deleteUsers = async (req: Request, res: Response): Promise<Response> =>{
+                const users = await getRepository(Users).findOne(req.params.id);
+                if (!users){
+                    return res.json({"message":"Usuario no existe"})
+                }
+                else {
+                    const result = await getRepository(Users).delete(req.params.id);
+                    return res.json(result);
+                     
+                }
+
+}
