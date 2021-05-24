@@ -26,6 +26,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 exports.__esModule = true;
 exports.Todo = void 0;
 var typeorm_1 = require("typeorm");
+var Users_1 = require("./Users");
 var Todo = /** @class */ (function (_super) {
     __extends(Todo, _super);
     function Todo() {
@@ -37,12 +38,20 @@ var Todo = /** @class */ (function (_super) {
     ], Todo.prototype, "id");
     __decorate([
         typeorm_1.Column(),
+        __metadata("design:type", Number)
+    ], Todo.prototype, "userId");
+    __decorate([
+        typeorm_1.Column(),
         __metadata("design:type", String)
     ], Todo.prototype, "label");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", Boolean)
     ], Todo.prototype, "done");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Users_1.Users; }, function (users) { return users.todo; }),
+        __metadata("design:type", Users_1.Users)
+    ], Todo.prototype, "users");
     Todo = __decorate([
         typeorm_1.Entity()
     ], Todo);
