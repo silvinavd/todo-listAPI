@@ -21,6 +21,8 @@ export class Users extends BaseEntity {
     @Column()
     password: string;
 
-    @OneToMany(() => Todo, todo => todo.users)
+    @OneToMany(() => Todo, todo => todo.users,{
+        onDelete: 'CASCADE',
+    })
     todo: Todo[];
 }

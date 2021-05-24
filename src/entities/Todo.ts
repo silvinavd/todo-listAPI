@@ -16,7 +16,9 @@ export class Todo extends BaseEntity {
     @Column()
     done: boolean;
 
-    @ManyToOne(() => Users, users => users.todo)
+    @ManyToOne(() => Users, users => users.todo, {
+        onDelete: 'CASCADE',
+    })
     users: Users;
 
 

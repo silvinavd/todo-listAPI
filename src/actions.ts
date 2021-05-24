@@ -37,16 +37,6 @@ export const getUsers = async (req: Request, res: Response): Promise<Response> =
     return res.json(users);
 }
 
-export const deleteUsers = async (req: Request, res: Response): Promise<Response> => {
-    const users = await getRepository(Users).findOne(req.params.id);
-    if (!users) {
-        return res.json({ "message": "Usuario no existe" })
-    }
-    else {
-        const result = await getRepository(Users).delete(req.params.id);
-        return res.json(result);
-    }
-}
 //GET TODOS CON USER
 
 export const getTodos = async (req: Request, res: Response): Promise<Response> => {
@@ -60,28 +50,35 @@ export const getTodos = async (req: Request, res: Response): Promise<Response> =
 
 // PUT TODOS
 export const putTodos = async (req: Request, res: Response): Promise<Response> => {
-
-
     if (!req.body.label) throw new Exception("Please provide a label")
     if (!req.body.done) throw new Exception("Please provide a state")
-    if (!req.body.user) throw new Exception("Please provide an user")
 
     const todoList = getRepository(Todo)
     // fetch for any user with this email
-    const newTodo = await todoList.findOne({ where: {label:req.body.label} && {user:req.body.user}})
+    const newTodo = await todoList.findOne({ where: {label:req.body.label}})
     if (newTodo) throw new Exception("Todo already exists with this email")
 
-    const users = await getRepository(Users).findOne(req.params.user_id);
-    if (!users)  throw new Exception("Not found")
+    const user = await getRepository(Users).findOne(req.params.user_id);
+    if (!user)  throw new Exception("Not found")
 
-    const nuevoTodo = getRepository(Todo).create(req.body);  //Creo un usuario
-    const results = await getRepository(Todo).save(nuevoTodo); //Grabo el nuevo usuario
+    const nuevoTodo = getRepository(Todo).create({...req.body, users: user});  //Creo un usuario
+    //saber quien es el user
 
-    users.todo.push(...nuevoTodo)
+    const results = await getRepository(Todo).save(nuevoTodo); //Grabo el nuevo todo
+
     return res.json(results);
 }
 
+//DELETE TODOS Y USER
 
-
-
+export const deleteUser = async (req: Request, res: Response): Promise<Response> => {
+    const users = await getRepository(Users).findOne(req.params.id);
+    if (!users) {
+        return res.json({ "message": "Usuario no existe" })
+    }
+    else {
+        const result = await getRepository(Users).delete(users);
+        return res.json(result);
+    }
+}
 

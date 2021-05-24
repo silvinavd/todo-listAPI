@@ -35,5 +35,5 @@ var router = express_1.Router();
 router.post('/user', utils_1.safe(actions_1.createUser)); //modificar para que cree tambien un todo
 router.get('/todos/user/:user_id', utils_1.safe(actions.getTodos));
 router.post('/todos/user/:user_id', utils_1.safe(actions.putTodos));
-router["delete"]('/user/:id', utils_1.safe(actions.deleteUsers));
+router["delete"]('/user/:user_id', utils_1.safe(actions.deleteUser));
 exports["default"] = router;

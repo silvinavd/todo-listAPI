@@ -45,7 +45,9 @@ var Todo = /** @class */ (function (_super) {
         __metadata("design:type", Boolean)
     ], Todo.prototype, "done");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Users_1.Users; }, function (users) { return users.todo; }),
+        typeorm_1.ManyToOne(function () { return Users_1.Users; }, function (users) { return users.todo; }, {
+            onDelete: 'CASCADE'
+        }),
         __metadata("design:type", Users_1.Users)
     ], Todo.prototype, "users");
     Todo = __decorate([
