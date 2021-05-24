@@ -33,6 +33,7 @@ var actions = __importStar(require("./actions"));
 var router = express_1.Router();
 // signup route, creates a new user in the DB
 router.post('/user', utils_1.safe(actions_1.createUser)); //modificar para que cree tambien un todo
-router.get('/todos/user/', utils_1.safe(actions.getUsers));
+router.get('/todos/user/:user_id', utils_1.safe(actions.getTodos));
+router.post('/todos/user/:user_id', utils_1.safe(actions.putTodos));
 router["delete"]('/user/:id', utils_1.safe(actions.deleteUsers));
 exports["default"] = router;

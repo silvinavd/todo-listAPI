@@ -36,13 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getTodos = exports.deleteUsers = exports.getUsers = exports.createUser = void 0;
+exports.putTodos = exports.getTodos = exports.deleteUsers = exports.getUsers = exports.createUser = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Users_1 = require("./entities/Users");
 var utils_1 = require("./utils");
 var Todo_1 = require("./entities/Todo");
 var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userRepo, user, newUser, newTodo, result;
+    var userRepo, user, newUser, results, usuario, todo, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -62,11 +62,21 @@ var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 if (user)
                     throw new utils_1.Exception("Users already exists with this email");
                 newUser = typeorm_1.getRepository(Users_1.Users).create(req.body);
-                newTodo = typeorm_1.getRepository(Todo_1.Todo).create(req.body);
-                return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo).save(newTodo)];
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).save(newUser)];
             case 2:
+                results = _a.sent();
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne({ where: { email: req.body.email } })];
+            case 3:
+                usuario = _a.sent();
+                if (!usuario)
+                    throw new utils_1.Exception("Usuario doesnt exist");
+                todo = new Todo_1.Todo();
+                todo.label = "Tarea ejemplo";
+                todo.done = false;
+                todo.users = usuario;
+                return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo).save(todo)];
+            case 4:
                 result = _a.sent();
-                // const results = await getRepository(Users).save(newUser); //Grabo el nuevo usuario 
                 return [2 /*return*/, res.json(result)];
         }
     });
@@ -103,14 +113,51 @@ var deleteUsers = function (req, res) { return __awaiter(void 0, void 0, void 0,
 exports.deleteUsers = deleteUsers;
 //GET TODOS CON USER
 var getTodos = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var todos;
+    var users;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo).find()];
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id, { relations: ["todo"] })];
             case 1:
-                todos = _a.sent();
-                return [2 /*return*/, res.json(todos)];
+                users = _a.sent();
+                if (!users) {
+                    return [2 /*return*/, res.json({ "message": "Usuario no existe" })];
+                }
+                return [2 /*return*/, res.json(users.todo)];
         }
     });
 }); };
 exports.getTodos = getTodos;
+// PUT TODOS
+var putTodos = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var todoList, newTodo, users, nuevoTodo, results;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                if (!req.body.label)
+                    throw new utils_1.Exception("Please provide a label");
+                if (!req.body.done)
+                    throw new utils_1.Exception("Please provide a state");
+                if (!req.body.user)
+                    throw new utils_1.Exception("Please provide an user");
+                todoList = typeorm_1.getRepository(Todo_1.Todo);
+                return [4 /*yield*/, todoList.findOne({ where: { label: req.body.label } && { user: req.body.user } })];
+            case 1:
+                newTodo = _b.sent();
+                if (newTodo)
+                    throw new utils_1.Exception("Todo already exists with this email");
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id)];
+            case 2:
+                users = _b.sent();
+                if (!users)
+                    throw new utils_1.Exception("Not found");
+                nuevoTodo = typeorm_1.getRepository(Todo_1.Todo).create(req.body);
+                return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo).save(nuevoTodo)];
+            case 3:
+                results = _b.sent();
+                (_a = users.todo).push.apply(_a, nuevoTodo);
+                return [2 /*return*/, res.json(results)];
+        }
+    });
+}); };
+exports.putTodos = putTodos;

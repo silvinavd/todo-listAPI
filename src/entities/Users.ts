@@ -21,7 +21,6 @@ export class Users extends BaseEntity {
     @Column()
     password: string;
 
-    @OneToMany(() => Todo, todo => todo.userId)
+    @OneToMany(() => Todo, todo => todo.users)
     todo: Todo[];
-
 }

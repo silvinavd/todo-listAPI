@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { getRepository } from 'typeorm'  // getRepository"  traer una tabla de la base de datos asociada al objeto
 import { Users } from './entities/Users'
 import { Exception } from './utils'
-import {Todo} from './entities/Todo'
+import { Todo } from './entities/Todo'
 
 export const createUser = async (req: Request, res: Response): Promise<Response> => {
 
@@ -19,19 +19,24 @@ export const createUser = async (req: Request, res: Response): Promise<Response>
     if (user) throw new Exception("Users already exists with this email")
 
     const newUser = getRepository(Users).create(req.body);  //Creo un usuario
+    const results = await getRepository(Users).save(newUser); //Grabo el nuevo usuario
+    const usuario = await getRepository(Users).findOne({ where: {email: req.body.email}})
+    if (!usuario) throw new Exception("Usuario doesnt exist")
 
-    const newTodo = getRepository(Todo).create(req.body);// Creo Todo
-    const result = await getRepository(Todo).save(newTodo);
-    // const results = await getRepository(Users).save(newUser); //Grabo el nuevo usuario 
+    const todo = new Todo();
+    todo.label = "Tarea ejemplo"; 
+    todo.done = false;
+    todo.users = usuario;
+
+    const result = await getRepository(Todo).save(todo);
     return res.json(result);
 }
-
-
 
 export const getUsers = async (req: Request, res: Response): Promise<Response> => {
     const users = await getRepository(Users).find();
     return res.json(users);
 }
+
 export const deleteUsers = async (req: Request, res: Response): Promise<Response> => {
     const users = await getRepository(Users).findOne(req.params.id);
     if (!users) {
@@ -42,10 +47,41 @@ export const deleteUsers = async (req: Request, res: Response): Promise<Response
         return res.json(result);
     }
 }
-    //GET TODOS CON USER
+//GET TODOS CON USER
 
 export const getTodos = async (req: Request, res: Response): Promise<Response> => {
-    const todos = await getRepository(Todo).find();
-    return res.json(todos);
-
+    const users = await getRepository(Users).findOne(req.params.user_id, {relations:["todo"]});
+    if (!users) {
+        return res.json({ "message": "Usuario no existe" })
+    }
+    return res.json(users.todo);
 }
+
+
+// PUT TODOS
+export const putTodos = async (req: Request, res: Response): Promise<Response> => {
+
+
+    if (!req.body.label) throw new Exception("Please provide a label")
+    if (!req.body.done) throw new Exception("Please provide a state")
+    if (!req.body.user) throw new Exception("Please provide an user")
+
+    const todoList = getRepository(Todo)
+    // fetch for any user with this email
+    const newTodo = await todoList.findOne({ where: {label:req.body.label} && {user:req.body.user}})
+    if (newTodo) throw new Exception("Todo already exists with this email")
+
+    const users = await getRepository(Users).findOne(req.params.user_id);
+    if (!users)  throw new Exception("Not found")
+
+    const nuevoTodo = getRepository(Todo).create(req.body);  //Creo un usuario
+    const results = await getRepository(Todo).save(nuevoTodo); //Grabo el nuevo usuario
+
+    users.todo.push(...nuevoTodo)
+    return res.json(results);
+}
+
+
+
+
+

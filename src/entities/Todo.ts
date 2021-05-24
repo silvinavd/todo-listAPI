@@ -11,9 +11,6 @@ export class Todo extends BaseEntity {
     id: number;
 
     @Column()
-    userId: number;
-
-    @Column()
     label: string;
 
     @Column()

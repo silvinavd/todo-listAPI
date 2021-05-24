@@ -38,10 +38,6 @@ var Todo = /** @class */ (function (_super) {
     ], Todo.prototype, "id");
     __decorate([
         typeorm_1.Column(),
-        __metadata("design:type", Number)
-    ], Todo.prototype, "userId");
-    __decorate([
-        typeorm_1.Column(),
         __metadata("design:type", String)
     ], Todo.prototype, "label");
     __decorate([
